@@ -2,6 +2,9 @@ import pandas as pd
 import tushare as ts
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+plt.rcParams['font.sans-serif'] = ['Arial Unicode MS'] # 用来正常显示中文标签
+plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
 """
 Step 1
 Prepare minutes price data
@@ -59,8 +62,11 @@ class stock:
         plt.plot(self.df_AH.dropna()['A'],linewidth=1,label='A')
         plt.plot(self.df_AH.dropna()['H'],linewidth=1,label='HK')
         plt.legend()
+        plt.title(self.name)
         if save_path != '':
-            plt.savefig(save_path,dpi=600, bbox_inches='tight')
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            plt.savefig(save_path+ '/' + self.name + 'price.png',dpi=600, bbox_inches='tight')
         plt.show()
     
     def draw_DR(self, save_path=''):
@@ -69,9 +75,11 @@ class stock:
         plt.plot(self.df_AH.dropna()['DR_ub'], color='orange',linestyle='--', label='ub')
         plt.plot(self.df_AH.dropna()['DR_lb'], color='orange',linestyle='--', label='lb')
         plt.legend()
-        plt.title('Discount Rate')
+        plt.title(self.name + '\nDiscount Rate')
         if save_path != '':
-            plt.savefig(save_path,dpi=600, bbox_inches='tight')
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            plt.savefig(save_path + '/' + self.name + 'DR.png',dpi=600, bbox_inches='tight')
         plt.show()
 
     def trading_rule(self, psntValue=100,show_transaction=False,save_path=''):
@@ -122,13 +130,24 @@ class stock:
             plt.scatter(np.arange(len(value))[buyPoint == 1],value[buyPoint == 1],color='red',label='Buy',s=1)
             plt.scatter(np.arange(len(value))[sellPoint == 1],value[sellPoint == 1],color='green',label='Sell',s=1)
         plt.legend()
-        plt.title('Final Value: {:.2f}'.format(psntValue))
+        plt.title(self.name + '\nFinal Value: {:.2f}'.format(psntValue))
         if save_path != '':
-            plt.savefig(save_path,dpi=600, bbox_inches='tight')
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            plt.savefig(save_path+ '/' + self.name + 'value.png',dpi=600, bbox_inches='tight')
         plt.show()
         # return value, psntValue, buyPoint, sellPoint
 
 stock1 = stock('招商银行',df_AH=df_AH[['招商银行','招商银行.1']])
-stock1.draw_price(save_path='data/price.png')
-stock1.draw_DR(save_path='data/DR.png')
-stock1.trading_rule(save_path='data/value.png')
+stock2 = stock('工商银行',df_AH=df_AH[['工商银行','工商银行.1']])
+stock3 = stock('农业银行',df_AH=df_AH[['农业银行','农业银行.1']])
+
+stock1.draw_price(save_path='data')
+stock1.draw_DR(save_path='data')
+stock1.trading_rule(save_path='data')
+stock2.draw_price(save_path='data')
+stock2.draw_DR(save_path='data')
+stock2.trading_rule(save_path='data')
+stock3.draw_price(save_path='data')
+stock3.draw_DR(save_path='data')
+stock3.trading_rule(save_path='data')
